@@ -79,7 +79,7 @@ class SunatService
         $this->voucher = (new Invoice())
             ->setUblVersion('2.1')
             ->setTipoOperacion($this->invoice->tipoOperacion) // Venta - Catalog. 51
-            ->setTipoDoc($this->invoice->tipoDoc) // Factura - Catalog. 01 
+            ->setTipoDoc($this->invoice->tipoDoc) // Factura - Catalog. 01
             ->setSerie($this->invoice->serie)
             ->setCorrelativo($this->invoice->correlativo) // Zona horaria: Lima
             ->setFechaEmision($this->invoice->fechaEmision) // Zona horaria: Lima
@@ -279,12 +279,12 @@ class SunatService
                 'cache' => false,
             ])
             ->setApiCredentials(
-                $this->company->production ? $this->company->client_id : 'test-85e5b0ae-255c-4891-a595-0b98c65c9854', 
+                $this->company->production ? $this->company->client_id : 'test-85e5b0ae-255c-4891-a595-0b98c65c9854',
                 $this->company->production ? $this->company->client_secret : 'test-Hty/M6QshYvPgItX2P0+Kw=='
             )
             ->setClaveSOL(
-                $this->company->ruc, 
-                $this->company->production ? $this->company->user_sol : 'MODDATOS', 
+                $this->company->ruc,
+                $this->company->production ? $this->company->user_sol : 'MODDATOS',
                 $this->company->production ? $this->company->password_sol : 'MODDATOS'
             )
             ->setCertificate($this->company->certificate);
@@ -298,16 +298,16 @@ class SunatService
         $this->invoice->send_xml = true;
         $this->invoice->sunat_success = $this->result->isSuccess();
         $this->invoice->save();
-        
+
         // Guardar XML firmado digitalmente.
         $xml = $this->see->getFactory()->getLastXml();
         $this->invoice->hash = (new XmlUtils())->getHashSign($xml);
         $this->invoice->xml_path = 'invoices/xml/' . $this->voucher->getName() . '.xml';
         Storage::put($this->invoice->xml_path, $xml, 'public');
-        
+
         // Verificamos que la conexión con SUNAT fue exitosa.
         if (!$this->invoice->sunat_success) {
-                
+
             $this->invoice->sunat_error = [
                 'code' => $this->result->getError()->getCode(),
                 'message' => $this->result->getError()->getMessage()
@@ -321,7 +321,7 @@ class SunatService
             ]);
 
             return;
-            
+
         }
 
         // Guardamos el CDR
@@ -362,9 +362,9 @@ class SunatService
             ]);
 
             return;
-            
+
         }
-        
+
         //Ticket
         $ticket = $this->result->getTicket();
         $this->result = $this->api->getStatus($ticket);
@@ -373,7 +373,7 @@ class SunatService
         $this->invoice->sunat_cdr_path = "guides/cdr/R-{$this->voucher->getName()}.zip";
         Storage::put($this->invoice->sunat_cdr_path, $this->result->getCdrZip(), 'public');
         $this->invoice->save();
-        
+
         //Lectura del CDR
         $this->readCdr();
     }
@@ -407,7 +407,7 @@ class SunatService
 
         // Guardamos el CDR
         $this->invoice->sunat_cdr_path = "invoices/cdr/R-{$this->voucher->getName()}.zip";
-        Storage::put($this->invoice->sunat_cdr_path, $this->result->getCdrZip(), 'public');        
+        Storage::put($this->invoice->sunat_cdr_path, $this->result->getCdrZip(), 'public');
         $this->invoice->save();
 
         //Lectura del CDR
@@ -422,7 +422,7 @@ class SunatService
         $this->invoice->xml_path = 'invoices/xml/' . $this->voucher->getName() . '.xml';
 
         Storage::put($this->invoice->xml_path, $xml, 'public');
-        
+
         $this->invoice->save();
     }
 
@@ -480,7 +480,7 @@ class SunatService
                 'footer' => $this->invoice->cdr_description,
             ]);
         }
-        
+
     }
 
     //Reportes
@@ -492,7 +492,7 @@ class SunatService
         $params = [
             'system' => [
                 'logo' => $this->company->rectangle_image_path ? Storage::get($this->company->rectangle_image_path) : file_get_contents('img/logos/logo.png'), // Logo de Empresa
-                'hash' => $this->invoice->hash, // Valor Resumen 
+                'hash' => $this->invoice->hash, // Valor Resumen
             ],
             'user' => [
                 'header'     => "Telf: <b>{$this->company->phone}</b>", // Texto que se ubica debajo de la dirección de empresa
@@ -522,12 +522,13 @@ class SunatService
             'page-width' => '21cm',
             'page-height' => '29.7cm',
         ]);
-        $report->setBinPath(env('WKHTMLTOPDF_BINARIES')); // Ruta relativa o absoluta de wkhtmltopdf
+        $binPath = config('pdf.wkhtmltopdf_bin');
+        $report->setBinPath($binPath); // Ruta relativa o absoluta de wkhtmltopdf
 
         $params = [
             'system' => [
                 'logo' => $this->company->rectangle_image_path ? Storage::get($this->company->rectangle_image_path) : file_get_contents('img/logos/logo.png'), // Logo de Empresa
-                'hash' => $this->invoice->hash, // Valor Resumen 
+                'hash' => $this->invoice->hash, // Valor Resumen
             ],
             'user' => [
                 'header'     => "Telf: <b>{$this->company->phone}</b>", // Texto que se ubica debajo de la dirección de empresa
