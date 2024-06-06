@@ -17,7 +17,7 @@
                 </button>
 
                 {{-- Logotipo --}}
-                <a href="/" class="flex ml-2 md:mr-24">
+                <a href="/companies" class="flex ml-2 md:mr-24">
                     <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 mr-3" alt="FlowBite Logo" />
                     <span
                         class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Flowbite</span>
@@ -31,10 +31,10 @@
                         <img class="w-8 h-8 rounded-full"
                                 src="{{Auth::user()->profile_photo_url}}"
                                 alt="user photo">
-                                
+
                     </x-slot>
 
-                    
+
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}" x-data>
                         @csrf
@@ -44,7 +44,7 @@
                             {{ __('Log Out') }}
                         </x-wire-dropdown.item>
                     </form>
-                    
+
 
                 </x-wire-dropdown>
             </div>
